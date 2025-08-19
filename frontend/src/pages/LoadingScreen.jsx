@@ -1,57 +1,29 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const fakeUpdateActions = [
-  { text: "Checking for system updates..." },
-  { text: "Connecting to mirror server..." },
-  { text: "Fetching package list..." },
-  { text: "Resolving dependencies..." },
-  { text: "Kernel patched: kernel-5.19.12" },
-  { text: "Security update applied: glibc-2.36.1" },
-  { text: "Updating openssh-server to 9.2p1", progress: true },
-  { text: "Applying CVE-2025-12234 fix" },
-  { text: "Updating Python 3.12.4", progress: true },
-  { text: "Node.js modules cache rebuilt", progress: true },
-  { text: "Docker engine updated to 24.0.5", progress: true },
-  { text: "Firewall rules reloaded (ufw)" },
-  { text: "Cleaning old kernels..." },
-  { text: "Optimizing system libraries..." },
-  { text: "Refreshing network modules..." },
-  { text: "GPU driver update applied (NVIDIA 537.50)" },
-  { text: "Installing security patches..." },
-  { text: "Verifying package signatures..." },
-  { text: "Configuring system services..." },
-  { text: "Rebuilding initramfs..." },
-  { text: "Updating GRUB bootloader..." },
-  { text: "Checking disk integrity..." },
-  { text: "Optimizing swap memory..." },
-  { text: "Reloading kernel modules..." },
-  { text: "Performing security audit..." },
-  { text: "Compressing system logs..." },
-  { text: "Starting backup process..." },
-  { text: "Backup completed successfully" },
-  { text: "Testing network latency..." },
-  { text: "CPU microcode updated" },
-  { text: "Firmware updated: version 3.14" },
-  { text: "Update complete! Reboot recommended." },
-  { text: "Logging session to /var/log/fake-update.log" },
-  { text: "" },
+  { text: "Initializing network sniffing tool...", type: "command" },
+  { text: "Capturing packets on eth0...", type: "info" },
+  { text: "Listening for HTTP traffic...", type: "info" },
+  { text: "Found potential target: 192.168.1.42", type: "success" },
+  { text: "Probing common web ports: 80, 443, 8080...", type: "command" },
+  { text: "Port 80 open — sending GET requests...", type: "info" },
+  { text: "Analyzing responses for login forms...", type: "info" },
+  { text: "Detected /admin/login page on 192.168.1.42", type: "success" },
+  { text: "Checking /login, /user/login, /auth paths...", type: "command" },
+  { text: "Login page confirmed at /admin/login", type: "success" },
+  { text: "Redirecting...", type: "warning" },
 ];
 
-// Custom hook for managing the update simulation
 const useUpdateSimulation = (onFinish) => {
   const [displayedLines, setDisplayedLines] = useState([]);
   const [currentAction, setCurrentAction] = useState(0);
   const intervalsRef = useRef([]);
 
-  // Clear all intervals on unmount or completion
   useEffect(() => {
     return () => {
       intervalsRef.current.forEach((interval) => clearInterval(interval));
     };
-  }, []);
-
-  const addLine = useCallback((line) => {
-    setDisplayedLines((prev) => [...prev, line]);
   }, []);
 
   const simulateProgress = useCallback((action, actionIndex) => {
@@ -63,7 +35,10 @@ const useUpdateSimulation = (onFinish) => {
 
       setDisplayedLines((prev) => {
         const newLines = [...prev];
-        newLines[actionIndex] = `${action.text} [${percent}%]`;
+        newLines[actionIndex] = {
+          text: `${action.text} [${percent}%]`,
+          type: action.type,
+        };
         return newLines;
       });
 
@@ -84,7 +59,10 @@ const useUpdateSimulation = (onFinish) => {
       charIndex++;
       setDisplayedLines((prev) => {
         const newLines = [...prev];
-        newLines[actionIndex] = lineText.slice(0, charIndex);
+        newLines[actionIndex] = {
+          text: lineText.slice(0, charIndex),
+          type: action.type,
+        };
         return newLines;
       });
 
@@ -112,10 +90,22 @@ const useUpdateSimulation = (onFinish) => {
     }
   }, [currentAction, onFinish, simulateProgress, simulateTyping]);
 
-  return displayedLines;
+  const skipAnimation = useCallback(() => {
+    intervalsRef.current.forEach((interval) => clearInterval(interval));
+    intervalsRef.current = [];
+
+    const allLines = fakeUpdateActions.map((action) => ({
+      text: action.progress ? `${action.text} [100%]` : action.text,
+      type: action.type,
+    }));
+
+    setDisplayedLines(allLines);
+    setCurrentAction(fakeUpdateActions.length);
+  }, []);
+
+  return { displayedLines, skipAnimation };
 };
 
-// Custom hook for auto-scrolling
 const useAutoScroll = (dependencies) => {
   const contentRef = useRef(null);
 
@@ -129,53 +119,125 @@ const useAutoScroll = (dependencies) => {
 };
 
 export default function LoadingScreen({ onFinish }) {
-  const displayedLines = useUpdateSimulation(onFinish);
+  const navigate = useNavigate();
+  const { displayedLines, skipAnimation } = useUpdateSimulation(onFinish);
   const contentRef = useAutoScroll([displayedLines]);
+  const [showSkipButton, setShowSkipButton] = useState(true);
+  const [isSkipping, setIsSkipping] = useState(false);
 
-  // Allow skipping with Escape key
+  useEffect(() => {
+    if (displayedLines.length === fakeUpdateActions.length) {
+      const timeout = setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [displayedLines, navigate]);
+
+  const handleSkip = () => {
+    setIsSkipping(true);
+    skipAnimation();
+    setTimeout(() => {
+      setShowSkipButton(false);
+    }, 300);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        onFinish();
+      if (e.key === "Escape" && showSkipButton) {
+        handleSkip();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onFinish]);
+  }, [showSkipButton]);
 
   return (
-    <div className='flex w-screen h-screen items-center justify-center bg-black p-4'>
-      <div className='terminal flex h-[70%] w-full max-w-4xl rounded-xl border-2 border-gray-700 flex-col bg-gray-800 overflow-hidden shadow-2xl'>
-        <div className='app-controller flex w-full h-8 justify-between px-3 border-b border-gray-700 py-1 bg-gray-800'>
+    <div className='flex w-screen h-screen items-center justify-center p-4 overflow-hidden'>
+      <div className='terminal flex h-[85%] w-full max-w-5xl rounded-xl border-2 border-green-700 flex-col bg-grey-800 bg-opacity-90 overflow-hidden shadow-2xl z-10 justify-between'>
+        <div className='app-controller flex w-full h-8 justify-between px-3 border-b border-green-700 py-1 bg-gradient-to-r from-green-900 to-black'>
           <div className='app-controller__header flex items-center gap-2'>
-            <div className='app-controller__header__button bg-red-500 w-3 h-3 rounded-full'></div>
-            <div className='app-controller__header__button bg-yellow-500 w-3 h-3 rounded-full'></div>
-            <div className='app-controller__header__button bg-green-500 w-3 h-3 rounded-full'></div>
+            <div className='app-controller__header__button'></div>
+            <div className='app-controller__header__button'></div>
+            <div className='app-controller__header__button'></div>
           </div>
-          <div className='app-controller__terminal_name flex items-center justify-center text-gray-400 text-sm'>
-            <span>m223rx@terminal:~$ system-update --simulate</span>
+          <div className='app-controller__terminal_name flex items-center justify-center text-green-400 text-sm font-mono'>
+            <span>m223rx@kali:~# network_penetration_tool --activate</span>
           </div>
-          <div className='w-6'></div> {/* Spacer for balance */}
+          <div className='flex items-center'>
+            <div className='h-2 w-2 bg-green-500 rounded-full animate-pulse mr-2'></div>
+            <span className='text-xs text-green-400'>LIVE</span>
+          </div>
         </div>
+
         <div
           ref={contentRef}
-          className='terminal__content flex flex-col p-4 overflow-y-auto text-green-400 font-mono text-sm leading-relaxed'
-          style={{
-            background: "linear-gradient(to bottom, #0a0f0d, #0a0a0a)",
-            textShadow: "0 0 2px rgba(104, 255, 104, 0.5)",
-          }}
+          className='terminal__content flex flex-col p-4 overflow-y-auto font-mono text-sm leading-relaxed bg-black bg-opacity-80 h-full'
         >
           {displayedLines.map((line, index) => (
-            <div key={index} className='terminal-line'>
-              <span className='prompt text-blue-400'>m223rx@server:~$ </span>
-              {line}
-              {index === displayedLines.length - 1 && (
-                <span className='cursor'>▋</span>
+            <div
+              key={index}
+              className={`terminal-line flex ${
+                index === displayedLines.length - 1 ? "animate-pulse" : ""
+              }`}
+            >
+              <span className='prompt text-green-600 shrink-0'>
+                m223rx@kali:~#{" "}
+              </span>
+              <span
+                className={`${
+                  line.type === "success"
+                    ? "text-green-400"
+                    : line.type === "warning"
+                    ? "text-yellow-400"
+                    : line.type === "command"
+                    ? "text-blue-400"
+                    : line.type === "empty"
+                    ? "opacity-0"
+                    : "text-green-200"
+                }`}
+              >
+                {line.text}
+              </span>
+              {index === displayedLines.length - 1 && line.type !== "empty" && (
+                <span className='cursor bg-green-400 ml-1 w-2 h-4 inline-block animate-blink'></span>
               )}
             </div>
           ))}
         </div>
+
+        <div className='terminal__status flex justify-between items-center px-4 py-2 border-t border-green-700 bg-gradient-to-r from-green-900 to-black text-xs text-green-400'>
+          <div className='flex items-center'>
+            <div className='h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse'></div>
+            <span>CONNECTED</span>
+          </div>
+          <div>
+            <span>
+              {displayedLines.length} / {fakeUpdateActions.length} commands
+              executed
+            </span>
+          </div>
+          <div>
+            <span>SSH: active</span>
+          </div>
+        </div>
+      </div>
+
+      {showSkipButton && (
+        <button
+          onClick={handleSkip}
+          className={`absolute bottom-8 right-8 px-4 py-2 bg-green-800 bg-opacity-70 text-green-200 rounded border border-green-600 font-mono text-sm z-20 transition-all duration-300 hover:bg-green-700 hover:text-white ${
+            isSkipping ? "opacity-0 transform scale-90" : "opacity-100"
+          }`}
+        >
+          SKIP [ESC]
+        </button>
+      )}
+
+      <div className='absolute inset-0 pointer-events-none'>
+        <div className='absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-green-400 to-transparent opacity-5'></div>
+        <div className='absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-green-400 to-transparent opacity-5'></div>
       </div>
     </div>
   );
