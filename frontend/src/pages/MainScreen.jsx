@@ -231,20 +231,6 @@ For secure communications, use encrypted email.
           <span className='text-green-300'>:~$</span>
           <span className='ml-2 animate-pulse'>_</span>
         </div>
-        <nav className='space-x-4 text-sm'>
-          <a href='#projects' className='hover:text-green-200'>
-            Projects
-          </a>
-          <a href='#skills' className='hover:text-green-200'>
-            Skills
-          </a>
-          <a href='#terminal' className='hover:text-green-200'>
-            Terminal
-          </a>
-          <a href='#contact' className='hover:text-green-200'>
-            Contact
-          </a>
-        </nav>
       </header>
 
       <main className='flex-1 p-6 flex flex-col gap-6 overflow-y-auto'>
