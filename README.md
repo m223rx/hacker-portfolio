@@ -64,7 +64,7 @@ Welcome to **m223rx's Hacker-Style Portfolio**, a sleek and immersive web portfo
 ## ⚡ Usage
 
 1. **Clone the repository:**
-   git clone https://github.com/yourusername/hacker-portfolio.git
+   git clone https://github.com/m223rx/hacker-portfolio.git
    cd hacker-portfolio
 
 2. **Install dependencies:**
