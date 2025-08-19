@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+
+.app-controller__header__button {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  margin-right: 8px;
+  cursor: pointer;
+}
+.app-controller__header__button:nth-child(1) {
+  background-color: #ff5f56;
+}
+.app-controller__header__button:nth-child(2) {
+  background-color: #ffbd2e;
+}
+.app-controller__header__button:nth-child(3) {
+  background-color: #27c93f;
+}
+
+.app-controller__terminal_name {
+  font-family: "Roboto Mono", monospace;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+@keyframes blink {
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+.blinking-cursor {
+  animation: blink 1s infinite;
+}
