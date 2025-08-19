@@ -81,7 +81,7 @@ Update the fakeUpdateActions array in LoadingScreen.jsx to modify terminal anima
 Change theme colors in Tailwind to match your brand.
 Add project screenshots and personal info to showcase your work.
 
-## 🎨 Customization
+## 📂 Project Structure
 
 src/
 ├── pages/
