@@ -49,15 +49,15 @@ Welcome to **m223rx's Hacker-Style Portfolio**, a sleek and immersive web portfo
 
 ### Loading Screen / Hacker Terminal
 
-![Loading Screen](.frontend/src/assets/screenshots/loading.png)
+![Loading Screen](frontend/src/assets/screenshots/loading.png)
 
 ### Terminal Output Animation
 
-![Terminal Output](.frontend/src/assets/screenshots/terminal.png)
+![Terminal Output](frontend/src/assets/screenshots/terminal.png)
 
 ### Login Page
 
-![Login Page](.frontend/src/assets/screenshots/login.png)
+![Login Page](frontend/src/assets/screenshots/login.png)
 
 ---
 
