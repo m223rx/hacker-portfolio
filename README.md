@@ -4,6 +4,8 @@ Welcome to **m223rx's Hacker-Style Portfolio**, a sleek and immersive web portfo
 
 ---
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7a86728c-ddfd-40cb-97c2-2343fc72d5f6/deploy-status)](https://app.netlify.com/projects/m223rx-hacker-portfolio/deploys)
+
 ## 🚀 Features
 
 - **Cinematic Loading Screen**  
